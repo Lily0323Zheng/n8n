@@ -1,0 +1,673 @@
+{
+  "name": "PICOS Scholar Search Assistant - Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "picos-chat",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        -544
+      ],
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "webhookId": "picos-chat-webhook"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# Role Prompting:\nYou are an intelligent assistant for a scholarly recommendation system in the neurological disease field, including Alzheimer's disease, Parkinson's disease, multiple sclerosis, Epilepsy and Autism Spectrum Disorder (ASD). The system is designed to help users find relevant studies based on specific criteria they provide. Your task is to interact with the user and collect six key pieces of information in JSON format: Disease category (D), Population (P), Intervention (I), Comparator (C), Outcome (O), and Study design (S).\n\n# Instructions:\nFirst, ask the user which disease or category they are interested in (e.g., Autism, Alzheimer's, etc.).\nNext, briefly explain the PICOS framework with examples of each element, and then ask the user to describe their research focus in a sentence or keywords.\nWhen the user provides a sentence or keywords, extract the Disease (D) and PICOS elements (P, I, C, O, S).\nIf any PICOS element is missing, prompt the user to provide it or confirm if they wish to leave it blank.\nOnce all elements are collected, respond with:\n1. A friendly message summarizing what you will do next.\n2. A reasonable sentence combining the DPICOS elements for semantic similarity matching.\n3. The final PICOS JSON.(e.g. {\"D\": \"...\", \"P\": \"...\", \"I\": \"...\", \"C\": \"...\", \"O\": \"...\", \"S\": \"...\"})\n4. A fixed phrase: \"I will now proceed to find relevant research papers based on your criteria.\"\n\nAfter presenting the recommended papers, if the user expresses interest in one of the papers (for example, by saying \"I want to know more about the first paper\" or \"I'm interested in paper 2\"), ask the user to specify which paper they are interested in by its index (1, 2, or 3).\nOnce the user indicates their choice, respond with a message confirming their selection and output a structured message in the following format:\n\"User is interested in paper [index] of the recommendations.\"\nFor example, if the user selects the first paper, output:\n\"User is interested in paper 1 of the recommendations.\"\nThis message will be used to trigger a deeper search or follow-up actions for the selected paper.\n\n# Rules\nAlways clarify and confirm missing PICOS elements before finalizing.\nOutput must include:\nA friendly response to the user.\nA single sentence summarizing the DPICOS query.\nA single-line JSON: {\"D\": \"...\", \"P\": \"...\", \"I\": \"...\", \"C\": \"...\", \"O\": \"...\", \"S\": \"...\"}.\nIf the user does not want to specify a missing PICOS element, set its value to \"\".\nDo not proceed to recommendations until the JSON is complete.\nAccept implicit information (e.g., if the user says "retrospective cohort," set S accordingly).\nFor the \"D\" (Disease) field in the DPICOS JSON, only use one of these exact names: \"Epilepsy\", \"Parkinson's\", \"Alzheimer's\", \"Autism Spectrum Disorder\", or \"Multiple Sclerosis\".\nIf the user's input is a synonym or abbreviation (e.g., \"Parkinson's disease\", \"PD\", \"multiple sclerosis\", \"ASD\"), map it to the closest allowed name.\nIf you are unsure, ask the user to clarify or select from the allowed options.\n\nAfter recommendations are shown, if the user expresses interest in a specific paper, always confirm their choice by index and output a message in the format:\n\"User is interested in paper [index] of the recommendations.\"\n\n# Few-Shot Examples:\nExample 1:\nUser: \"elderly people with memory loss received drugs, in a placebo comparison, resulting in cognitive improvement.\"\nAgent:\n\"Thank you! To help you find relevant research papers, I'll use your criteria: elderly people with memory loss receiving drugs compared to placebo, measuring cognitive improvement.\nBefore I proceed, could you specify the study design (e.g., RCT, cohort study), or would you like to leave it blank?\"\n(If user says \"leave blank\", agent responds:)\n\"Okay, I will search for papers based on your criteria.\nQuery: elderly people with memory loss receiving drugs compared to placebo, measuring cognitive improvement.\nJSON: {\"D\": \"Alzheimer's\", \"P\": \"elderly people with memory loss\", \"I\": \"drugs\", \"C\": \"placebo\", \"O\": \"cognitive improvement\", \"S\": \"\"}\"\n\"I will now proceed to find relevant research papers based on your criteria.\"\n\nExample 2:\nUser:\nI want studies about Parkinson's disease, adults, comparing exercise and medication, focusing on motor function.\nAgent:\nThank you! To help you find relevant research papers, I'll use your criteria: adults with Parkinson's disease comparing exercise and medication, measuring motor function.\nBefore I proceed, could you specify the study design (for example, randomized controlled trial, cohort study), or would you like to leave it blank? Before I proceed, is there anything you'd like to confirm or add?\nUser:\nConfirmed.\nAgent:\nGreat! I will search for papers based on your criteria.\nQuery: adults with Parkinson's disease, comparing exercise and medication, measuring motor function.\nJSON: {\"D\": \"Parkinson's\", \"P\": \"adults\", \"I\": \"exercise\", \"C\": \"medication\", \"O\": \"motor function\", \"S\": \"\"}\n\"I will now proceed to find relevant research papers based on your criteria.\"\n\nExample 3:\nUser: I am interested in the second paper.\nAgent: Thank you for your interest! User is interested in paper 2 of the recommendations."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        -544
+      ],
+      "id": "010c9ced-2e90-4420-bc80-50ece912ac28",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        -400
+      ],
+      "id": "d6b4a138-23c8-4f01-b834-9816208deb8a",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        -368
+      ],
+      "id": "d2c9a427-81e6-46b8-b4a8-503229a800d8",
+      "name": "GPT-4o-Mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "o2FS7tq0t5rsL0kf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        -336
+      ],
+      "id": "fbcec6be-9d81-4e44-8099-0cd867b9334f",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        -336
+      ],
+      "id": "4e188077-27c2-471a-93fc-eec4f040946d",
+      "name": "GPT-4.1",
+      "credentials": {
+        "openAiApi": {
+          "id": "o2FS7tq0t5rsL0kf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert clinical research assistant. You will receive a list of recommended research papers (Recommended Paper 0, 1, 2)\n\nYour task is to help the user understand each paper and why it was selected.\n\nInstructions:\n\nFor Paper 0 (from the same cluster as the user's query), begin with: \"This paper is highly relevant to your query.\"\nFor Papers 1 and 2 (from related clusters), begin with: \"You may also like this paper, as it offers a related perspective.\"\nFor each paper:\nPresent the title.\nWrite a concise summary of the abstract (2-3 sentences, plain language).\nExplain why it was recommended, focusing on matching PICOS fields (compare user_query_picos with picos_json), cluster relation, fuzzymatching, and similarity. Highlight strong matches in population, intervention, comparison, outcome, or study design if present.\n\nOutput format:\n\nBased on your research criteria, here are the most relevant research papers:\n\nTitle: [Paper Title]\n\nSummary: [Short summary of the abstract]\n\nReason for Recommendation: [Explanation, including matching PICOS fields, cluster relation, fuzzymatching, similarity, etc.]\n\nBe concise, clear, and helpful.\n\n{{ $json['Recommended Paper 0'] }}, {{ $json['Recommended Paper 1'] }}, {{ $json['Recommended Paper 2'] }}."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1280,
+        -544
+      ],
+      "id": "61b5e4c5-41c5-4e7f-80f9-09c59b0e4f45",
+      "name": "GPT-4.1-mini Summarizer",
+      "credentials": {
+        "openAiApi": {
+          "id": "o2FS7tq0t5rsL0kf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1a35d6b5-99b1-4d83-a2d3-23b4976f2ac4",
+              "name": "Recommended Paper 0",
+              "value": "={{ $json.recommendations[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "a27a8117-0d17-4634-b94c-3aa9e70ce82b",
+              "name": "Recommended Paper 1",
+              "value": "={{ $json.recommendations[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "5e9bcb3c-e0c2-4f8e-8245-a3b4636c971d",
+              "name": "Recommended Paper 2",
+              "value": "={{ $json.recommendations[2] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        -544
+      ],
+      "id": "9ef13ac3-c2d6-4c2e-b28b-59f4fd5c2dc2",
+      "name": "Organize"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53b1bc41-bf0a-43f3-bbe1-82d7e6dc2a94",
+              "name": "output",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        -400
+      ],
+      "id": "d0b1f1d7-ffbe-43cc-b4bc-518d510f0078",
+      "name": "Output"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -384
+      ],
+      "id": "bb0eeeb0-6ef7-47cf-ba15-4ae3114d4d76",
+      "name": "Continue"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert clinical research assistant. You will receive a deep search result (Paper Interested In, Related Paper 1, Related Paper 2).\n\nYour task is to help the user understand each paper and why it was selected.\n\nInstructions:\n\nFor \"Paper Interested In\", begin with: \"This is the paper you selected.\"\nFor \"Related Paper 1\" and \"Related Paper 2\", begin with: \"You may also be interested in these related papers.\"\nFor each paper:\nPresent the title.\nWrite a concise summary of the abstract (2-3 sentences, plain language).\nExplain why it is related, focusing on their Semantic similarity, fuzzymatching, and similarity to the selected paper. Highlight strong matches in population, intervention, comparison, outcome, or study design if present.\n\nOutput format:\nTitle: [Paper Title]\n\nSummary: [Short summary of the abstract]\n\nReason for Recommendation: [Explanation, including semantic similarity, fuzzymatching, etc.]\n\nBe concise, clear, and helpful.\n\n{{ $json['Paper Interested In'] }}, {{ $json['Related Paper 1'] }}, {{ $json['Related Paper 2'] }}."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1280,
+        -240
+      ],
+      "id": "2bb49b6b-7c12-4f56-a8b1-0151adb9090c",
+      "name": "GPT-4.1-mini Summarizer1",
+      "credentials": {
+        "openAiApi": {
+          "id": "o2FS7tq0t5rsL0kf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "query_text",
+              "description": "The summary sentence for semantic similarity.",
+              "required": true
+            },
+            {
+              "name": "picos_json",
+              "description": "The DPICOS JSON.",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Extract the following two parts from the input text:\n1. The search query sentence (the summary sentence describing the user's criteria).\n2. The JSON object containing the DPICOS fields.\n\nAdditional Instructions:\nFor the \"D\" (Disease) field in the DPICOS JSON, only use one of these exact names: \"Epilepsy\", \"Parkinson's\", \"Alzheimer's\", \"Autism Spectrum Disorder\", or \"Multiple Sclerosis\".\nIf the user's input is a synonym or abbreviation (e.g., \"Parkinson's disease\", \"PD\", \"multiple sclerosis\", \"ASD\"), map it to the closest allowed name.\n\nReturn:\n- query_text: The search query sentence.\n- picos_json: The JSON object."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        -544
+      ],
+      "id": "bb43dc79-aeba-4749-bc8a-f141463d5465",
+      "name": "RS Extractor"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "paper_index",
+              "type": "number",
+              "description": "the index of paper that the user is interested in.",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Extract the the index of paper that the user is interested in.\nReturn:\n- paper_index: 1, 2, or 3."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        -240
+      ],
+      "id": "8a03e4c9-aa0f-47f0-bdae-e38f7af2b407",
+      "name": "DS Extractor"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.output }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "complete"
+            },
+            {
+              "category": "incomplete"
+            },
+            {
+              "category": "deep search"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Output is \"complete\" ONLY if the agent has collected all important parameters for our recommendation system:\n\nA JSON object with all six PICOS elements: Disease (D), Population (P), Intervention (I), Comparator (C), Outcome (O), and Study design (S), even if some values are empty strings (\"\").\nA User Query which is a brief summary of the PICOS elements used for semantic similarity matching.\nAn intent-sentence: any clear sentence indicating the agent will proceed to find or search for relevant research papers based on the user's criteria. This can include, but is not limited to, phrases like \"I will now proceed to find relevant research papers based on your criteria.\" or \"I will search for papers based on your criteria.\"\n\nOutput is \"incomplete\" if any PICOS element is missing from the JSON, or if the agent is still asking the user for more information or clarification.\n\nOutput is \"deep search\" if the user expresses clear intent to explore one of the recommended papers in more detail, such as asking for more information, requesting a deeper dive, or expressing interest in follow-up studies or related work based on a specific recommended paper.\n\nReturn only one of the following as the classification: \"complete\", \"incomplete\", or \"deep search\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        48,
+        -208
+      ],
+      "id": "9c36d860-5e9b-431f-9ab6-71e07c31f5f8",
+      "name": "Intent Classifier"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4abfaa74-4a40-466a-a02e-35032332fbe4",
+              "name": "paper_index",
+              "value": "={{ $json.output.paper_index }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        -240
+      ],
+      "id": "25274408-f3af-4455-a927-78d350fbf02c",
+      "name": "Formatting"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR_FLASK_URL/recommend",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "paper_index",
+              "value": "={{ $json.paper_index }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        976,
+        -240
+      ],
+      "id": "da7ce727-05d1-413c-a0db-2f3b92c42524",
+      "name": "Deep Search"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR_FLASK_URL/recommend",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query_text",
+              "value": "={{ $json.output.query_text }}"
+            },
+            {
+              "name": "picos_json",
+              "value": "={{ $json.output.picos_json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        976,
+        -544
+      ],
+      "id": "8f6dd3ff-9a50-4898-8d79-f100c245bd33",
+      "name": "Recommendation System"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b0a807f-e407-4f2d-a669-390a90672d68",
+              "name": "Paper Interested In",
+              "value": "={{ $json.deep_recommendations[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "1a35d6b5-99b1-4d83-a2d3-23b4976f2ac4",
+              "name": "Related Paper 1",
+              "value": "={{ $json.deep_recommendations[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "a27a8117-0d17-4634-b94c-3aa9e70ce82b",
+              "name": "Related Paper 2",
+              "value": "={{ $json.deep_recommendations[2] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        -240
+      ],
+      "id": "95407e93-ec41-4049-9d74-d484cbee9eee",
+      "name": "Organize Output"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        -544
+      ],
+      "id": "webhook-response",
+      "name": "Webhook Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing1": {
+      "main": [
+        []
+      ]
+    },
+    "GPT-4o-Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RS Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "DS Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4.1-mini Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Organize": {
+      "main": [
+        [
+          {
+            "node": "GPT-4.1-mini Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4.1-mini Summarizer1": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS Extractor": {
+      "main": [
+        [
+          {
+            "node": "Recommendation System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DS Extractor": {
+      "main": [
+        [
+          {
+            "node": "Formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "RS Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DS Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting": {
+      "main": [
+        [
+          {
+            "node": "Deep Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deep Search": {
+      "main": [
+        [
+          {
+            "node": "Organize Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recommendation System": {
+      "main": [
+        [
+          {
+            "node": "Organize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Organize
