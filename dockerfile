@@ -5,18 +5,15 @@ WORKDIR /home/node
 
 # Environment variables for Railway deployment
 ENV N8N_HOST=0.0.0.0
-ENV N8N_PORT=5678
+ENV N8N_PORT=$PORT
 ENV N8N_PROTOCOL=https
 ENV N8N_BASIC_AUTH_ACTIVE=false
 ENV N8N_SECURE_COOKIE=false
 ENV N8N_EDITOR_BASE_URL=/
+ENV WEBHOOK_URL=$RAILWAY_PUBLIC_DOMAIN
 
-# Copy workflow files (if you have them)
-# We'll import manually first, so this is optional
-# COPY workflows/ /home/node/.n8n/workflows/
-
-# Expose the port
-EXPOSE 5678
+# Expose the port (Railway assigns this dynamically)
+EXPOSE $PORT
 
 # Use the default n8n startup command
 CMD ["n8n"]
