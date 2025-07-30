@@ -1,0 +1,5 @@
+[build]
+dockerfile = "Dockerfile"
+
+[variables]
+NIXPACKS_NO_CACHE = "1"
